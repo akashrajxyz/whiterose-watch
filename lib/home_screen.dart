@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:audio_player_tutorial2/utils/utils.dart';
 import 'package:audio_player_tutorial2/widgets/audio_info.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -13,7 +15,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool isPlaying = false;
   late final AudioPlayer player;
+  late final AudioPlayer mplayer;
   late final AssetSource path;
+  late final AssetSource mpath;
+
 
   Duration _duration = const Duration();
   Duration _position = const Duration();
@@ -22,6 +27,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     initPlayer();
     super.initState();
+    Timer.periodic( const Duration(minutes: 1), (timer) {
+      playPause();
+    });
   }
 
   @override
@@ -32,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future initPlayer() async {
     player = AudioPlayer();
-    path = AssetSource('audios/ukulele.mp3');
+    path = AssetSource('audios/beep.mp3');
 
     // set a callback for changing duration
     player.onDurationChanged.listen((Duration d) {
@@ -49,14 +57,18 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() => _position = _duration);
     });
   }
+  void changePlayButton() async {
+    if(isPlaying){
+      isPlaying = false;
+    }else{
+      isPlaying = true;
+    }
+    setState(() {});
+  }
 
   void playPause() async {
-    if (isPlaying) {
-      player.pause();
-      isPlaying = false;
-    } else {
+    if(isPlaying){
       player.play(path);
-      isPlaying = true;
     }
     setState(() {});
   }
@@ -70,39 +82,12 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const AudioInfo(),
-            const SizedBox(height: 50),
-            Slider(
-              value: _position.inSeconds.toDouble(),
-              onChanged: (value) async {
-                await player.seek(Duration(seconds: value.toInt()));
-                setState(() {});
-              },
-              min: 0,
-              max: _duration.inSeconds.toDouble(),
-              inactiveColor: Colors.grey,
-              activeColor: Colors.red,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(_duration.format()),
-              ],
-            ),
-            const SizedBox(height: 50),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                InkWell(
-                  onTap: () {
-                    player.seek(Duration(seconds: _position.inSeconds - 10));
-                    setState(() {});
-                  },
-                  child: Image.asset('assets/icons/rewind.png'),
-                ),
                 const SizedBox(width: 20),
                 InkWell(
-                  onTap: playPause,
+                  onTap: changePlayButton,
                   child: Icon(
                     isPlaying ? Icons.pause_circle : Icons.play_circle,
                     color: Colors.red,
@@ -110,13 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(width: 20),
-                InkWell(
-                  onTap: () {
-                    player.seek(Duration(seconds: _position.inSeconds + 10));
-                    setState(() {});
-                  },
-                  child: Image.asset('assets/icons/forward.png'),
-                ),
+
               ],
             ),
           ],

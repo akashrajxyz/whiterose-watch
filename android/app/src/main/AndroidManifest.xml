@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="audio_player_tutorial2"
+        android:label="whiterose"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
